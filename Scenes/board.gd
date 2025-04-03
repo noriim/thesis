@@ -1,7 +1,9 @@
 extends Sprite2D
 
-const BOARD_SIZE = 5
+const BOARD_SIZE = 4
+const MAX_WIDTH = BOARD_SIZE - 1
 const CELL_WIDTH = 18
+const WIN = 4
 
 const TEXTURE_HOLDER = preload("res://Scenes/texture_holder.tscn")
 
@@ -138,25 +140,85 @@ func is_empty(pos : Vector2):
 	
 func spin_board():
 	var breakpnt = BOARD_SIZE / 2 - 0.5
-	var max_width = BOARD_SIZE - 1
 
 	var temp_matrix = board.duplicate(true)
 	for y in range(BOARD_SIZE):
 		for x in range(BOARD_SIZE):
-			if x+y < max_width and x >= y:
+			if x+y < MAX_WIDTH and x >= y:
 				temp_matrix[y][x+1] = board[y][x]
-				#print("y: " + str(y) + " x: " + str(x) + " right")
 				
-			if x+y > max_width and x <= y:
+			if x+y > MAX_WIDTH and x <= y:
 				temp_matrix[y][x-1] = board[y][x]
 				
-			if x+y >= max_width and x > y:
+			if x+y >= MAX_WIDTH and x > y:
 				temp_matrix[y+1][x] = board[y][x]
 				
-			if x+y <= max_width and x < y:
+			if x+y <= MAX_WIDTH and x < y:
 				temp_matrix[y-1][x] = board[y][x]
 				
-			
 	board = temp_matrix
+	
+	for y in range(BOARD_SIZE - 1, -1, -1):
+		print(str(board[y]))
+	print()
+	print()
 	display_board()
-			
+	check_win()
+
+func check_win():
+	var white_win = false
+	var black_win = false
+	var counter = 1
+	#diagonal 1
+	for i in range(1, BOARD_SIZE):
+		if board[i][i] != 0 and board[i][i] == board[i-1][i-1]:
+				counter += 1
+				if counter == WIN and board[i][i] == 1:
+					white_win = true
+				elif counter == WIN and board[i][i] == -1:
+					black_win = true
+		else:
+			counter = 1
+	counter = 1
+	#diagonal 2
+	for i in range(1, BOARD_SIZE):
+		if board[MAX_WIDTH-i][i] != 0 and board[MAX_WIDTH-i][i] == board[MAX_WIDTH-i+1][i-1]:
+			counter += 1
+			if counter == WIN and board[MAX_WIDTH-i][i] == 1:
+				white_win = true
+			elif counter == WIN and board[MAX_WIDTH-i][i] == -1:
+				black_win = true
+		else:
+			counter = 1
+
+	counter = 1
+	
+	#horizontal
+	for y in range(BOARD_SIZE):
+		for x in range(1, BOARD_SIZE):
+			if board[y][x] != 0 and board[y][x] == board[y][x-1]:
+				counter += 1
+				if counter == WIN and board[y][x] == 1:
+					white_win = true
+				elif counter == WIN and board[y][x] == -1:
+					black_win = true
+		counter = 1
+		
+	#vertical
+	for x in range(BOARD_SIZE):
+		for y in range(1, BOARD_SIZE):
+			if board[y][x] != 0 and board[y][x] == board[y-1][x]:
+				counter += 1
+				if counter == WIN and board[y][x] == 1:
+					white_win = true
+				elif counter == WIN and board[y][x] == -1:
+					black_win = true
+		counter = 1
+		
+
+	if white_win and black_win:
+		print("welp, thats a tie")
+	elif white_win:
+		print("yay, white won")
+	elif black_win:
+		print("yay, black won")
