@@ -1,6 +1,6 @@
 extends Sprite2D
 
-const BOARD_SIZE = 4
+const BOARD_SIZE = 5
 const CELL_WIDTH = 18
 
 const TEXTURE_HOLDER = preload("res://Scenes/texture_holder.tscn")
@@ -26,11 +26,10 @@ var selected_piece : Vector2
 var has_moved : bool = false
 
 func _ready():
-	board.append([1,-1, 0, 1])
-	board.append([0, 0, 0, 0])
-	board.append([0, 1, 0, 0])
-	board.append([-1, 0, -1, 1])
-	
+	for i in range(BOARD_SIZE):
+		board.append([])
+		board[i].resize(BOARD_SIZE)
+		board[i].fill(0)
 	display_board()
 	
 func _input(event):
@@ -56,7 +55,9 @@ func _input(event):
 					board[var2][var1] = 1
 				black = !black
 				has_moved = false
-				display_board()				
+				display_board()
+				await get_tree().create_timer(1.0).timeout
+				spin_board()
 
 func is_mouse_out():
 	if get_global_mouse_position().x < 0 || get_global_mouse_position().x > (BOARD_SIZE * CELL_WIDTH) || get_global_mouse_position().y > 0 || get_global_mouse_position().y < (-1 * BOARD_SIZE * CELL_WIDTH):
@@ -105,10 +106,10 @@ func set_move(var2, var1):
 			board[var2][var1] = board[selected_piece.x][selected_piece.y]
 			board[selected_piece.x][selected_piece.y] = 0
 			display_board()
+			has_moved = true
 			break
 	delete_dots()
 	state = false
-	has_moved = true
 
 func get_moves():
 	var _moves = []
@@ -136,12 +137,26 @@ func is_empty(pos : Vector2):
 	return false
 	
 func spin_board():
-	var circles = ceil(BOARD_SIZE / 2)
-	var tmp = 0
-	var circles_done = 0
-	var circles_matrix : Array
-	var x = 0
-	var y = 0
-	circles_matrix.append([[0,0], [0,1], [0,2], [0,3], [1,3], [2,3], [3,3], [3,2], [3,1], [3,0], [2,0], [1,0]])
-	circles_matrix.append([[1,1], [1,2], [2,2], [2,1]])
-	
+	var breakpnt = BOARD_SIZE / 2 - 0.5
+	var max_width = BOARD_SIZE - 1
+
+	var temp_matrix = board.duplicate(true)
+	for y in range(BOARD_SIZE):
+		for x in range(BOARD_SIZE):
+			if x+y < max_width and x >= y:
+				temp_matrix[y][x+1] = board[y][x]
+				#print("y: " + str(y) + " x: " + str(x) + " right")
+				
+			if x+y > max_width and x <= y:
+				temp_matrix[y][x-1] = board[y][x]
+				
+			if x+y >= max_width and x > y:
+				temp_matrix[y+1][x] = board[y][x]
+				
+			if x+y <= max_width and x < y:
+				temp_matrix[y-1][x] = board[y][x]
+				
+			
+	board = temp_matrix
+	display_board()
+			
