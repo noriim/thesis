@@ -1,7 +1,18 @@
-[gd_scene load_steps=3 format=3 uid="uid://c481oggokcmg5"]
+[gd_scene load_steps=4 format=3 uid="uid://c481oggokcmg5"]
 
 [ext_resource type="Texture2D" uid="uid://ctce35kptwtdv" path="res://Assets/Chess_board.png" id="1_1yipi"]
 [ext_resource type="Script" path="res://Scenes/board.gd" id="2_r7lbl"]
+
+[sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_yf7ag"]
+properties/0/path = NodePath("Pieces:position")
+properties/0/spawn = true
+properties/0/replication_mode = 1
+properties/1/path = NodePath("Dots:position")
+properties/1/spawn = true
+properties/1/replication_mode = 1
+properties/2/path = NodePath("Turn:visible")
+properties/2/spawn = true
+properties/2/replication_mode = 1
 
 [node name="Board" type="Sprite2D"]
 texture = ExtResource("1_1yipi")
@@ -14,3 +25,6 @@ script = ExtResource("2_r7lbl")
 [node name="Turn" type="Sprite2D" parent="."]
 modulate = Color(1, 1, 1, 0.666667)
 z_index = -10
+
+[node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="."]
+replication_config = SubResource("SceneReplicationConfig_yf7ag")

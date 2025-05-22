@@ -26,19 +26,22 @@ var state : bool = false
 var moves = []
 var selected_piece : Vector2
 var has_moved : bool = false
+var is_timeout : bool = false
+var placed_pieces : int = 8
+var is_game_over = false
 
 func _ready():
 	for i in range(BOARD_SIZE):
 		board.append([])
 		board[i].resize(BOARD_SIZE)
 		board[i].fill(0)
+		is_game_over = false
 	display_board()
-	
 func _input(event):
-	if event is InputEventMouseButton && event.pressed:
+	if event is InputEventMouseButton && event.pressed && !is_timeout:
 		if event.button_index == MOUSE_BUTTON_LEFT:
 			if is_mouse_out(): return
-			if !has_moved:	
+			if !has_moved:
 				var var1 = snapped(get_global_mouse_position().x, 0) / CELL_WIDTH
 				var var2 = abs(snapped(get_global_mouse_position().y, 0)) / CELL_WIDTH
 				if !state && (black && board[var2][var1] > 0 || !black && board[var2][var1] < 0):
@@ -55,11 +58,25 @@ func _input(event):
 					board[var2][var1] = -1
 				else:
 					board[var2][var1] = 1
+				placed_pieces += 1
 				black = !black
 				has_moved = false
+				is_timeout = true
 				display_board()
 				await get_tree().create_timer(1.0).timeout
+				is_timeout = false
 				spin_board()
+				if is_board_full():
+					for i in 5:
+						await get_tree().create_timer(1.0).timeout
+						print(i)
+						if is_game_over:
+							return
+						spin_board()
+					print("no winner :(")
+
+func is_board_full():
+	return placed_pieces == BOARD_SIZE * BOARD_SIZE
 
 func is_mouse_out():
 	if get_global_mouse_position().x < 0 || get_global_mouse_position().x > (BOARD_SIZE * CELL_WIDTH) || get_global_mouse_position().y > 0 || get_global_mouse_position().y < (-1 * BOARD_SIZE * CELL_WIDTH):
@@ -116,10 +133,10 @@ func set_move(var2, var1):
 func get_moves():
 	var _moves = []
 	match abs(board[selected_piece.x][selected_piece.y]):
-		1: _moves = get_pawn_moves()
+		1: _moves = get_ball_moves()
 	return _moves
 	
-func get_pawn_moves():
+func get_ball_moves():
 	var _moves = []
 	var directions = [Vector2(0, 1), Vector2(0, -1), Vector2(1, 0), Vector2(-1, 0)]
 	
@@ -217,8 +234,33 @@ func check_win():
 		
 
 	if white_win and black_win:
+		is_game_over = true
 		print("welp, thats a tie")
 	elif white_win:
+		is_game_over = true
 		print("yay, white won")
 	elif black_win:
+		is_game_over = true
 		print("yay, black won")
+	print("FULL:" + str(is_board_full()))
+	print("GAME OVER:" + str(is_game_over))
+	print("PLACED PIECES:" + str(placed_pieces))
+
+
+
+# Multi WIP
+
+var peer = ENetMultiplayerPeer.new()
+func _on_host_pressed():
+	peer.create_server(25565)
+	multiplayer.multiplayer_peer = peer
+	
+	multiplayer.peer_connected.connect(
+		func(pid):
+			print("Peer" + str(pid) + " has joined the game!")
+	)
+
+
+func _on_join_pressed():
+	peer.create_client("localhost", 25565)
+	multiplayer.multiplayer_peer = peer
