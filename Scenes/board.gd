@@ -27,7 +27,7 @@ var moves = []
 var selected_piece : Vector2
 var has_moved : bool = false
 var is_timeout : bool = false
-var placed_pieces : int = 8
+var placed_pieces : int = 0
 var is_game_over = false
 
 func _ready():
@@ -38,7 +38,7 @@ func _ready():
 		is_game_over = false
 	display_board()
 func _input(event):
-	if event is InputEventMouseButton && event.pressed && !is_timeout:
+	if event is InputEventMouseButton && event.pressed && !is_timeout && !is_game_over:
 		if event.button_index == MOUSE_BUTTON_LEFT:
 			if is_mouse_out(): return
 			if !has_moved:
@@ -73,7 +73,9 @@ func _input(event):
 						if is_game_over:
 							return
 						spin_board()
-					print("no winner :(")
+					if !is_game_over:
+						print("no winner :(")
+						is_game_over = true
 
 func is_board_full():
 	return placed_pieces == BOARD_SIZE * BOARD_SIZE
