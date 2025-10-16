@@ -1,0 +1,37 @@
+[gd_scene load_steps=2 format=3 uid="uid://c5tcxdk0vtw34"]
+
+[ext_resource type="Script" path="res://Multiplayer/low_level_client_ui.gd" id="1_opu36"]
+
+[node name="LowLevelUI" type="Control"]
+clip_contents = true
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 3.0
+offset_top = 3.0
+offset_right = -1004.0
+offset_bottom = -547.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_opu36")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="."]
+layout_mode = 0
+offset_right = 141.0
+offset_bottom = 93.0
+
+[node name="Label" type="Label" parent="VBoxContainer"]
+layout_mode = 2
+text = "LOW-LEVEL MULTI"
+
+[node name="Server" type="Button" parent="VBoxContainer"]
+layout_mode = 2
+text = "SERVER"
+
+[node name="Client" type="Button" parent="VBoxContainer"]
+layout_mode = 2
+text = "CLIENT"
+
+[connection signal="pressed" from="VBoxContainer/Server" to="." method="_on_server_pressed"]
+[connection signal="pressed" from="VBoxContainer/Client" to="." method="_on_client_pressed"]

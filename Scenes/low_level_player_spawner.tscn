@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://ts4n55xce04i"]
+
+[ext_resource type="Script" uid="uid://dhhaiv222hdio" path="res://Multiplayer/low_level_player_spawner.gd" id="1_ourrh"]
+
+[node name="LowLevelPlayerSpawner" type="Node"]
+script = ExtResource("1_ourrh")

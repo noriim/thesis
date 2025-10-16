@@ -1,9 +1,9 @@
 extends Sprite2D
 
-const BOARD_SIZE = 4
-const MAX_WIDTH = BOARD_SIZE - 1
-const CELL_WIDTH = 18
-const WIN = 4
+const BOARD_SIZE : int = 4
+const MAX_WIDTH : int = BOARD_SIZE - 1
+const CELL_WIDTH : int = 18
+const WIN : int = 4
 
 const TEXTURE_HOLDER = preload("res://Scenes/texture_holder.tscn")
 
@@ -15,6 +15,7 @@ const TURN_WHITE = preload("res://Assets/turn-white.png")
 
 const PIECE_MOVE = preload("res://Assets/Piece_move.png")
 
+#Assets
 @onready var pieces = $Pieces
 @onready var dots = $Dots
 @onready var turn = $Turn
@@ -39,12 +40,13 @@ func _ready():
 	display_board()
 func _input(event):
 	if event is InputEventMouseButton && event.pressed && !is_timeout && !is_game_over:
+		print("asd " + event.to_string())
 		if event.button_index == MOUSE_BUTTON_LEFT:
 			if is_mouse_out(): return
 			if !has_moved:
 				var var1 = snapped(get_global_mouse_position().x, 0) / CELL_WIDTH
 				var var2 = abs(snapped(get_global_mouse_position().y, 0)) / CELL_WIDTH
-				if !state && (black && board[var2][var1] > 0 || !black && board[var2][var1] < 0):
+				if !state && (black && board[var2][var1] == 1 || !black && board[var2][var1] == -1):
 					selected_piece = Vector2(var2, var1)
 					show_options()
 					state = true
@@ -93,7 +95,7 @@ func display_board():
 		for j in BOARD_SIZE:
 			var holder = TEXTURE_HOLDER.instantiate()
 			pieces.add_child(holder)
-			holder.global_position = Vector2(j * CELL_WIDTH + (CELL_WIDTH / 2), -i * CELL_WIDTH - (CELL_WIDTH / 2))
+			holder.global_position = Vector2(j * CELL_WIDTH + (CELL_WIDTH / 2.0), -i * CELL_WIDTH - (CELL_WIDTH / 2.0))
 			
 			match board[i][j]:
 				-1: holder.texture = BLACK_PIECE
@@ -115,7 +117,7 @@ func show_dots():
 		var holder = TEXTURE_HOLDER.instantiate()
 		dots.add_child(holder)
 		holder.texture = PIECE_MOVE
-		holder.global_position = Vector2(i.y * CELL_WIDTH + (CELL_WIDTH / 2), -i.x * CELL_WIDTH - (CELL_WIDTH / 2))
+		holder.global_position = Vector2(i.y * CELL_WIDTH + (CELL_WIDTH / 2.0), -i.x * CELL_WIDTH - (CELL_WIDTH / 2.0))
 		
 func delete_dots():
 	for child in dots.get_children():
@@ -158,7 +160,7 @@ func is_empty(pos : Vector2):
 	return false
 	
 func spin_board():
-	var breakpnt = BOARD_SIZE / 2 - 0.5
+	#var breakpnt = BOARD_SIZE / 2 - 0.5
 
 	var temp_matrix = board.duplicate(true)
 	for y in range(BOARD_SIZE):
@@ -212,6 +214,8 @@ func check_win():
 
 	counter = 1
 	
+	#TODO iterative diagonal check ex.: BOARD_SIZE == 6, WIN == 4 
+	
 	#horizontal
 	for y in range(BOARD_SIZE):
 		for x in range(1, BOARD_SIZE):
@@ -247,22 +251,3 @@ func check_win():
 	print("FULL:" + str(is_board_full()))
 	print("GAME OVER:" + str(is_game_over))
 	print("PLACED PIECES:" + str(placed_pieces))
-
-
-
-# Multi WIP
-
-var peer = ENetMultiplayerPeer.new()
-func _on_host_pressed():
-	peer.create_server(25565)
-	multiplayer.multiplayer_peer = peer
-	
-	multiplayer.peer_connected.connect(
-		func(pid):
-			print("Peer" + str(pid) + " has joined the game!")
-	)
-
-
-func _on_join_pressed():
-	peer.create_client("localhost", 25565)
-	multiplayer.multiplayer_peer = peer

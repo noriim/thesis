@@ -1,0 +1,19 @@
+[gd_scene load_steps=4 format=3 uid="uid://hn5xisvke4mk"]
+
+[ext_resource type="Script" uid="uid://bmf1ot5da2nfl" path="res://Multiplayer/low_level_network_player.gd" id="1_gwymf"]
+[ext_resource type="Texture2D" uid="uid://grvod8p6i5fy" path="res://icon.svg" id="2_7kts0"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_j6rbc"]
+size = Vector2(128, 128)
+
+[node name="LowLevelNetworkPlayer" type="CharacterBody2D"]
+scale = Vector2(0.1, 0.1)
+motion_mode = 1
+script = ExtResource("1_gwymf")
+
+[node name="Icon" type="Sprite2D" parent="."]
+texture = ExtResource("2_7kts0")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("RectangleShape2D_j6rbc")
+disabled = true

@@ -12,8 +12,14 @@ config_version=5
 
 config/name="Thesis"
 run/main_scene="res://Scenes/main.tscn"
-config/features=PackedStringArray("4.2", "Forward Plus")
+config/features=PackedStringArray("4.4", "Forward Plus")
 config/icon="res://icon.svg"
+
+[autoload]
+
+LowLevelNetworkHandler="*res://Multiplayer/low_level_network_handler.gd"
+ClientNetworkGlobals="*res://Multiplayer/client_network_globals.gd"
+ServerNetworkGlobals="*res://Multiplayer/server_network_globals.gd"
 
 [rendering]
 
