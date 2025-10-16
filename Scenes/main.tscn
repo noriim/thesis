@@ -1,32 +1,17 @@
-[gd_scene load_steps=4 format=3 uid="uid://cdbakbpmi2smn"]
+[gd_scene load_steps=3 format=3 uid="uid://cdbakbpmi2smn"]
 
+[ext_resource type="Script" uid="uid://bipnwpkuiikho" path="res://Scenes/multiplayer.gd" id="1_bo1nx"]
 [ext_resource type="PackedScene" uid="uid://c481oggokcmg5" path="res://Scenes/board.tscn" id="1_k2fhw"]
-[ext_resource type="PackedScene" uid="uid://ts4n55xce04i" path="res://Scenes/low_level_player_spawner.tscn" id="2_8gbba"]
-[ext_resource type="PackedScene" uid="uid://c5tcxdk0vtw34" path="res://Scenes/low_level_ui.tscn" id="3_jjvhh"]
 
 [node name="Main" type="Node2D"]
+script = ExtResource("1_bo1nx")
 
 [node name="Camera2D" type="Camera2D" parent="."]
 position = Vector2(72, -72)
+ignore_rotation = false
 zoom = Vector2(4, 4)
 
 [node name="CanvasLayer" type="CanvasLayer" parent="."]
 
 [node name="Board" parent="." instance=ExtResource("1_k2fhw")]
 position = Vector2(72, -72)
-
-[node name="LowLevelUI" parent="." instance=ExtResource("3_jjvhh")]
-anchors_preset = 0
-anchor_right = 0.0
-anchor_bottom = 0.0
-offset_left = 0.0
-offset_top = -147.0
-offset_right = 146.0
-offset_bottom = -49.0
-grow_horizontal = 1
-grow_vertical = 1
-scale = Vector2(0.5, 0.5)
-size_flags_horizontal = 4
-size_flags_vertical = 4
-
-[node name="LowLevelPlayerSpawner" parent="." instance=ExtResource("2_8gbba")]

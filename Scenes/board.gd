@@ -31,53 +31,72 @@ var is_timeout : bool = false
 var placed_pieces : int = 0
 var is_game_over = false
 
-func _ready():
-	for i in range(BOARD_SIZE):
-		board.append([])
-		board[i].resize(BOARD_SIZE)
-		board[i].fill(0)
-		is_game_over = false
+#Multiplayer
+var side #white is true, black is false
+
+func set_turn(turn):
+	side = turn
 	display_board()
+	if !side:
+		$"../Camera2D".global_rotation_degrees = 180
+
+func _ready():
+	board.append([1, 1, 1, 1])
+	board.append([0, 0, 0, 0])
+	board.append([0, 0, 0, 0])
+	board.append([-1, -1, -1, -1])
+	#for i in range(BOARD_SIZE):
+		#board.append([])
+		#board[i].resize(BOARD_SIZE)
+		#board[i].fill(0)
+	is_game_over = false
+	#display_board()
 func _input(event):
-	if event is InputEventMouseButton && event.pressed && !is_timeout && !is_game_over:
-		print("asd " + event.to_string())
-		if event.button_index == MOUSE_BUTTON_LEFT:
-			if is_mouse_out(): return
-			if !has_moved:
+	if side != null && side == black:
+		if event is InputEventMouseButton && event.pressed && !is_timeout && !is_game_over:
+			if event.button_index == MOUSE_BUTTON_LEFT:
+				if is_mouse_out(): return
+				if !has_moved:
+					var var1 = snapped(get_global_mouse_position().x, 0) / CELL_WIDTH
+					var var2 = abs(snapped(get_global_mouse_position().y, 0)) / CELL_WIDTH
+					if !state && (black && board[var2][var1] == 1 || !black && board[var2][var1] == -1):
+						selected_piece = Vector2(var2, var1)
+						show_options()
+						state = true
+					elif state:
+						if moves.has(Vector2(var2, var1)):
+							get_parent().send_move(selected_piece, Vector2(var2, var1))
+							set_move(selected_piece, Vector2(var2, var1))
+							
+						delete_dots()
+						state = false
+			elif event.button_index == MOUSE_BUTTON_RIGHT:
+				if is_mouse_out(): return
 				var var1 = snapped(get_global_mouse_position().x, 0) / CELL_WIDTH
 				var var2 = abs(snapped(get_global_mouse_position().y, 0)) / CELL_WIDTH
-				if !state && (black && board[var2][var1] == 1 || !black && board[var2][var1] == -1):
-					selected_piece = Vector2(var2, var1)
-					show_options()
-					state = true
-				elif state: set_move(var2, var1)
-		elif event.button_index == MOUSE_BUTTON_RIGHT:
-			if is_mouse_out(): return
-			var var1 = snapped(get_global_mouse_position().x, 0) / CELL_WIDTH
-			var var2 = abs(snapped(get_global_mouse_position().y, 0)) / CELL_WIDTH
-			if !state && board[var2][var1] == 0:
-				if black:
-					board[var2][var1] = -1
-				else:
-					board[var2][var1] = 1
-				placed_pieces += 1
-				black = !black
-				has_moved = false
-				is_timeout = true
-				display_board()
-				await get_tree().create_timer(1.0).timeout
-				is_timeout = false
-				spin_board()
-				if is_board_full():
-					for i in 5:
-						await get_tree().create_timer(1.0).timeout
-						print(i)
-						if is_game_over:
-							return
-						spin_board()
-					if !is_game_over:
-						print("no winner :(")
-						is_game_over = true
+				if !state && board[var2][var1] == 0:
+					if black:
+						board[var2][var1] = -1
+					else:
+						board[var2][var1] = 1
+					placed_pieces += 1
+					black = !black
+					has_moved = false
+					is_timeout = true
+					display_board()
+					await get_tree().create_timer(1.0).timeout
+					is_timeout = false
+					spin_board()
+					if is_board_full():
+						for i in 5:
+							await get_tree().create_timer(1.0).timeout
+							print(i)
+							if is_game_over:
+								return
+							spin_board()
+						if !is_game_over:
+							print("no winner :(")
+							is_game_over = true
 
 func is_board_full():
 	return placed_pieces == BOARD_SIZE * BOARD_SIZE
@@ -94,6 +113,8 @@ func display_board():
 	for i in BOARD_SIZE:
 		for j in BOARD_SIZE:
 			var holder = TEXTURE_HOLDER.instantiate()
+			if !side:
+				holder.global_rotation_degrees = 180
 			pieces.add_child(holder)
 			holder.global_position = Vector2(j * CELL_WIDTH + (CELL_WIDTH / 2.0), -i * CELL_WIDTH - (CELL_WIDTH / 2.0))
 			
@@ -123,16 +144,13 @@ func delete_dots():
 	for child in dots.get_children():
 		child.queue_free()
 		
-func set_move(var2, var1):
-	for i in moves:
-		if i.x == var2 && i.y == var1:
-			board[var2][var1] = board[selected_piece.x][selected_piece.y]
-			board[selected_piece.x][selected_piece.y] = 0
-			display_board()
-			has_moved = true
-			break
-	delete_dots()
-	state = false
+func set_move(start_pos : Vector2, end_pos : Vector2):
+	
+	board[end_pos.x][end_pos.y] = board[start_pos.x][start_pos.y]
+	board[start_pos.x][start_pos.y] = 0
+	display_board()
+	has_moved = true
+			
 
 func get_moves():
 	var _moves = []
