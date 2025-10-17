@@ -34,13 +34,13 @@ func remove_player(peer_id):
 	connected_peer_ids.erase(peer_id)
 
 @rpc("any_peer")
-func send_move_info(id, start_pos, end_pos):
+func send_move_info(id, start_pos, end_pos, create):
 	if id == connected_peer_ids[0] && turn:
-		rpc_id(connected_peer_ids[1], "return_enemy_move", start_pos, end_pos)
-		turn = !turn
+		rpc_id(connected_peer_ids[1], "return_enemy_move", start_pos, end_pos, create)
+		turn = !turn if create else turn
 	elif id == connected_peer_ids[1] && !turn:
-		rpc_id(connected_peer_ids[0], "return_enemy_move", start_pos, end_pos)
-		turn = !turn
+		rpc_id(connected_peer_ids[0], "return_enemy_move", start_pos, end_pos, create)
+		turn = !turn if create else turn
 
 @rpc("authority")
 func return_enemy_move():

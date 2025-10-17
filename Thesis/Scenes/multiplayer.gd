@@ -9,16 +9,16 @@ func join(ip, port):
 	multiplayer_peer.create_client(ip, port)
 	multiplayer.multiplayer_peer = multiplayer_peer
 	
-func send_move(start_pos, end_pos):
-	rpc_id(1, "send_move_info", multiplayer.get_unique_id(), start_pos, end_pos)
+func send_move(start_pos, end_pos, create):
+	rpc_id(1, "send_move_info", multiplayer.get_unique_id(), start_pos, end_pos, create)
 	
 @rpc
 func send_move_info():
 	pass
 
 @rpc("authority")
-func return_enemy_move(start_pos, end_pos):
-	$Board.set_move(start_pos, end_pos)
+func return_enemy_move(start_pos, end_pos, create):
+	$Board.set_move(start_pos, end_pos, create)
 
 @rpc("authority")
 func give_turn(turn):

@@ -41,16 +41,17 @@ func set_turn(turn):
 		$"../Camera2D".global_rotation_degrees = 180
 
 func _ready():
-	board.append([1, 1, 1, 1])
-	board.append([0, 0, 0, 0])
-	board.append([0, 0, 0, 0])
-	board.append([-1, -1, -1, -1])
-	#for i in range(BOARD_SIZE):
-		#board.append([])
-		#board[i].resize(BOARD_SIZE)
-		#board[i].fill(0)
-	is_game_over = false
+	#board.append([1, 1, 1, 1])
+	#board.append([0, 0, 0, 0])
+	#board.append([0, 0, 0, 0])
+	#board.append([-1, -1, -1, -1])
 	#display_board()
+	for i in range(BOARD_SIZE):
+		board.append([])
+		board[i].resize(BOARD_SIZE)
+		board[i].fill(0)
+	is_game_over = false
+
 func _input(event):
 	if side != null && side == black:
 		if event is InputEventMouseButton && event.pressed && !is_timeout && !is_game_over:
@@ -65,8 +66,8 @@ func _input(event):
 						state = true
 					elif state:
 						if moves.has(Vector2(var2, var1)):
-							get_parent().send_move(selected_piece, Vector2(var2, var1))
-							set_move(selected_piece, Vector2(var2, var1))
+							get_parent().send_move(selected_piece, Vector2(var2, var1), false)
+							set_move(selected_piece, Vector2(var2, var1), false)
 							
 						delete_dots()
 						state = false
@@ -75,18 +76,9 @@ func _input(event):
 				var var1 = snapped(get_global_mouse_position().x, 0) / CELL_WIDTH
 				var var2 = abs(snapped(get_global_mouse_position().y, 0)) / CELL_WIDTH
 				if !state && board[var2][var1] == 0:
-					if black:
-						board[var2][var1] = -1
-					else:
-						board[var2][var1] = 1
-					placed_pieces += 1
-					black = !black
-					has_moved = false
-					is_timeout = true
-					display_board()
-					await get_tree().create_timer(1.0).timeout
-					is_timeout = false
-					spin_board()
+					get_parent().send_move(Vector2(), Vector2(var2, var1), true)
+					set_move(Vector2(), Vector2(var2, var1), true)
+					
 					if is_board_full():
 						for i in 5:
 							await get_tree().create_timer(1.0).timeout
@@ -144,21 +136,24 @@ func delete_dots():
 	for child in dots.get_children():
 		child.queue_free()
 		
-func set_move(start_pos : Vector2, end_pos : Vector2):
-	
-	board[end_pos.x][end_pos.y] = board[start_pos.x][start_pos.y]
-	board[start_pos.x][start_pos.y] = 0
+func set_move(start_pos : Vector2, end_pos : Vector2, create : bool):
+	if create:
+		board[end_pos.x][end_pos.y] = -1 if black else 1
+		placed_pieces += 1
+		display_board()
+		black = !black
+		has_moved = false
+		is_timeout = true
+		await get_tree().create_timer(1.0).timeout
+		is_timeout = false
+		spin_board()
+	elif !create:
+		board[end_pos.x][end_pos.y] = board[start_pos.x][start_pos.y]
+		board[start_pos.x][start_pos.y] = 0
+		has_moved = true
 	display_board()
-	has_moved = true
-			
 
 func get_moves():
-	var _moves = []
-	match abs(board[selected_piece.x][selected_piece.y]):
-		1: _moves = get_ball_moves()
-	return _moves
-	
-func get_ball_moves():
 	var _moves = []
 	var directions = [Vector2(0, 1), Vector2(0, -1), Vector2(1, 0), Vector2(-1, 0)]
 	
