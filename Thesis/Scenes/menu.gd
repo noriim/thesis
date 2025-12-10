@@ -17,7 +17,6 @@ func _ready():
 	_show_panel(menu)
 	_update_back_button()
 	
-	back_button.pressed.connect(_on_back_pressed)
 	settings_button.pressed.connect(_navigate_to.bind(settings))
 	
 
@@ -62,9 +61,9 @@ func start(singleplayer: bool):
 	var packed_scene = load("res://Scenes/main.tscn")
 	var main_scene = packed_scene.instantiate()
 
-	var settings = $Settings
-	var board_size_value = settings.get_board_size()
-	var win_con_value = settings.get_win_con()
+	var settingsSceme = $Settings
+	var board_size_value = settingsSceme.get_board_size()
+	var win_con_value = settingsSceme.get_win_con()
 	
 	var board = main_scene.get_node("Board")
 

@@ -1,10 +1,6 @@
 extends Sprite2D
 
-var board_size : int
-var max_width : int
 const CELL_WIDTH : int = 18
-var win_con : int
-var singleplayer : bool
 
 const TEXTURE_HOLDER = preload("res://Scenes/texture_holder.tscn")
 
@@ -22,6 +18,10 @@ const PIECE_MOVE = preload("res://Assets/Piece_move.png")
 @onready var turn = $Turn
 
 #Variables
+var board_size : int
+var max_width : int
+var win_con : int
+var singleplayer : bool
 var board : Array
 var black : bool = true
 var state : bool = false
@@ -44,8 +44,33 @@ func set_turn(turn):
 
 func _ready():
 	max_width = board_size - 1
-	print(board_size)
-	print(win_con)
+	if board_size == 4:
+		texture = load("res://Assets/Board4.png")
+		position = Vector2(36, -36)
+		$"../Camera2D".zoom = Vector2(7, 7)
+		$"../Camera2D".offset = Vector2(-36, 36)
+		$Turn.scale = Vector2(0.54, 0.54)
+	elif board_size == 5:
+		texture = load("res://Assets/Board5.png")
+		position = Vector2(45, -45)
+		$"../Camera2D".zoom = Vector2(5.8, 5.8)
+		$"../Camera2D".offset = Vector2(-27, 27)
+		$Turn.scale = Vector2(0.655, 0.655)
+	elif board_size == 6:
+		texture = load("res://Assets/Board6.png")
+		position = Vector2(54, -54)
+		$"../Camera2D".zoom = Vector2(5, 5)
+		$"../Camera2D".offset = Vector2(-18, 18)
+		$Turn.scale = Vector2(0.77, 0.77)
+	elif board_size == 7:
+		texture = load("res://Assets/Board7.png")
+		position = Vector2(63, -63)
+		$"../Camera2D".zoom = Vector2(4.3, 4.3)
+		$"../Camera2D".offset = Vector2(-9, 9)
+		$Turn.scale = Vector2(0.885, 0.885)
+	elif board_size == 8:
+		texture = load("res://Assets/Board8.png")
+
 	#board.append([1, 1, 1, 1])
 	#board.append([0, 0, 0, 0])
 	#board.append([0, 0, 0, 0])
