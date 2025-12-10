@@ -1,10 +1,10 @@
 extends Sprite2D
 
-var board_size : int = 4
-var max_width : int = board_size - 1
+var board_size : int
+var max_width : int
 const CELL_WIDTH : int = 18
-var win_con : int = 4
-var singleplayer : bool = true
+var win_con : int
+var singleplayer : bool
 
 const TEXTURE_HOLDER = preload("res://Scenes/texture_holder.tscn")
 
@@ -41,9 +41,9 @@ func set_turn(turn):
 		
 		if !side:
 			$"../Camera2D".global_rotation_degrees = 180
-	display_board()
 
 func _ready():
+	max_width = board_size - 1
 	print(board_size)
 	print(win_con)
 	#board.append([1, 1, 1, 1])
@@ -56,7 +56,7 @@ func _ready():
 		board[i].resize(board_size)
 		board[i].fill(0)
 	is_game_over = false
-
+	display_board()
 func _input(event):
 	if singleplayer or side != null && side == black:
 		if event is InputEventMouseButton && event.pressed && !is_timeout && !is_game_over:

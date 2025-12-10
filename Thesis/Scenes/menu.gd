@@ -51,37 +51,29 @@ func _on_quit_pressed():
 
 
 func _on_single_pressed():
-	# Load the packed Main scene
-	var packed_scene = load("res://Scenes/main.tscn")
-	var main_scene = packed_scene.instantiate()
-
-	# Debug print (optional)
-	print("Instantiated Main:", main_scene)
-
-	# Get values from Settings panel
-	var settings = $Settings
-	var board_size_value = settings.get_board_size()
-	var win_con_value = settings.get_win_con()
-	
-	# Access the Board node INSIDE the main scene
-	var board = main_scene.get_node("Board") # Adjust path if needed
-
-	# Pass values directly to board
-	board.board_size = board_size_value
-	board.win_con = win_con_value
-	board.singleplayer = true
-	# --- Replace the current scene with main_scene ---
-
-	# Remove old scene
-	get_tree().current_scene.queue_free()
-
-	# Add new scene
-	get_tree().root.add_child(main_scene)
-
-	# Mark it as the active scene
-	get_tree().current_scene = main_scene
+	start(true)
 
 
 
 func _on_multi_pressed():
-	pass # Replace with function body.
+	start(false)
+
+func start(singleplayer: bool):
+	var packed_scene = load("res://Scenes/main.tscn")
+	var main_scene = packed_scene.instantiate()
+
+	var settings = $Settings
+	var board_size_value = settings.get_board_size()
+	var win_con_value = settings.get_win_con()
+	
+	var board = main_scene.get_node("Board")
+
+	board.board_size = board_size_value
+	board.win_con = win_con_value
+	board.singleplayer = singleplayer
+
+	get_tree().current_scene.queue_free()
+
+	get_tree().root.add_child(main_scene)
+
+	get_tree().current_scene = main_scene
