@@ -1,9 +1,10 @@
 extends Sprite2D
 
-const BOARD_SIZE : int = 4
-const MAX_WIDTH : int = BOARD_SIZE - 1
+var board_size : int = 4
+var max_width : int = board_size - 1
 const CELL_WIDTH : int = 18
-const WIN : int = 4
+var win_con : int = 4
+var singleplayer : bool = true
 
 const TEXTURE_HOLDER = preload("res://Scenes/texture_holder.tscn")
 
@@ -35,25 +36,29 @@ var is_game_over = false
 var side #white is true, black is false
 
 func set_turn(turn):
-	side = turn
+	if !singleplayer:
+		side = turn
+		
+		if !side:
+			$"../Camera2D".global_rotation_degrees = 180
 	display_board()
-	if !side:
-		$"../Camera2D".global_rotation_degrees = 180
 
 func _ready():
+	print(board_size)
+	print(win_con)
 	#board.append([1, 1, 1, 1])
 	#board.append([0, 0, 0, 0])
 	#board.append([0, 0, 0, 0])
 	#board.append([-1, -1, -1, -1])
 	#display_board()
-	for i in range(BOARD_SIZE):
+	for i in range(board_size):
 		board.append([])
-		board[i].resize(BOARD_SIZE)
+		board[i].resize(board_size)
 		board[i].fill(0)
 	is_game_over = false
 
 func _input(event):
-	if side != null && side == black:
+	if singleplayer or side != null && side == black:
 		if event is InputEventMouseButton && event.pressed && !is_timeout && !is_game_over:
 			if event.button_index == MOUSE_BUTTON_LEFT:
 				if is_mouse_out(): return
@@ -91,10 +96,10 @@ func _input(event):
 							is_game_over = true
 
 func is_board_full():
-	return placed_pieces == BOARD_SIZE * BOARD_SIZE
+	return placed_pieces == board_size * board_size
 
 func is_mouse_out():
-	if get_global_mouse_position().x < 0 || get_global_mouse_position().x > (BOARD_SIZE * CELL_WIDTH) || get_global_mouse_position().y > 0 || get_global_mouse_position().y < (-1 * BOARD_SIZE * CELL_WIDTH):
+	if get_global_mouse_position().x < 0 || get_global_mouse_position().x > (board_size * CELL_WIDTH) || get_global_mouse_position().y > 0 || get_global_mouse_position().y < (-1 * board_size * CELL_WIDTH):
 		return true
 	return false
 	
@@ -102,8 +107,8 @@ func display_board():
 	for child in pieces.get_children():
 		child.queue_free()
 		
-	for i in BOARD_SIZE:
-		for j in BOARD_SIZE:
+	for i in board_size:
+		for j in board_size:
 			var holder = TEXTURE_HOLDER.instantiate()
 			if !side:
 				holder.global_rotation_degrees = 180
@@ -165,7 +170,7 @@ func get_moves():
 	return _moves
 
 func is_valid_position(pos : Vector2):
-	if pos.x >= 0 && pos.x < BOARD_SIZE && pos.y >= 0 && pos.y < BOARD_SIZE: return true
+	if pos.x >= 0 && pos.x < board_size && pos.y >= 0 && pos.y < board_size: return true
 	return false
 	
 func is_empty(pos : Vector2):
@@ -173,26 +178,26 @@ func is_empty(pos : Vector2):
 	return false
 	
 func spin_board():
-	#var breakpnt = BOARD_SIZE / 2 - 0.5
+	#var breakpnt = board_size / 2 - 0.5
 
 	var temp_matrix = board.duplicate(true)
-	for y in range(BOARD_SIZE):
-		for x in range(BOARD_SIZE):
-			if x+y < MAX_WIDTH and x >= y:
+	for y in range(board_size):
+		for x in range(board_size):
+			if x+y < max_width and x >= y:
 				temp_matrix[y][x+1] = board[y][x]
 				
-			if x+y > MAX_WIDTH and x <= y:
+			if x+y > max_width and x <= y:
 				temp_matrix[y][x-1] = board[y][x]
 				
-			if x+y >= MAX_WIDTH and x > y:
+			if x+y >= max_width and x > y:
 				temp_matrix[y+1][x] = board[y][x]
 				
-			if x+y <= MAX_WIDTH and x < y:
+			if x+y <= max_width and x < y:
 				temp_matrix[y-1][x] = board[y][x]
 				
 	board = temp_matrix
 	
-	for y in range(BOARD_SIZE - 1, -1, -1):
+	for y in range(board_size - 1, -1, -1):
 		print(str(board[y]))
 	print()
 	print()
@@ -204,50 +209,50 @@ func check_win():
 	var black_win = false
 	var counter = 1
 	#diagonal 1
-	for i in range(1, BOARD_SIZE):
+	for i in range(1, board_size):
 		if board[i][i] != 0 and board[i][i] == board[i-1][i-1]:
 				counter += 1
-				if counter == WIN and board[i][i] == 1:
+				if counter == win_con and board[i][i] == 1:
 					white_win = true
-				elif counter == WIN and board[i][i] == -1:
+				elif counter == win_con and board[i][i] == -1:
 					black_win = true
 		else:
 			counter = 1
 	counter = 1
 	#diagonal 2
-	for i in range(1, BOARD_SIZE):
-		if board[MAX_WIDTH-i][i] != 0 and board[MAX_WIDTH-i][i] == board[MAX_WIDTH-i+1][i-1]:
+	for i in range(1, board_size):
+		if board[max_width-i][i] != 0 and board[max_width-i][i] == board[max_width-i+1][i-1]:
 			counter += 1
-			if counter == WIN and board[MAX_WIDTH-i][i] == 1:
+			if counter == win_con and board[max_width-i][i] == 1:
 				white_win = true
-			elif counter == WIN and board[MAX_WIDTH-i][i] == -1:
+			elif counter == win_con and board[max_width-i][i] == -1:
 				black_win = true
 		else:
 			counter = 1
 
 	counter = 1
 	
-	#TODO iterative diagonal check ex.: BOARD_SIZE == 6, WIN == 4 
+	#TODO iterative diagonal check ex.: board_size == 6, win_con == 4 
 	
 	#horizontal
-	for y in range(BOARD_SIZE):
-		for x in range(1, BOARD_SIZE):
+	for y in range(board_size):
+		for x in range(1, board_size):
 			if board[y][x] != 0 and board[y][x] == board[y][x-1]:
 				counter += 1
-				if counter == WIN and board[y][x] == 1:
+				if counter == win_con and board[y][x] == 1:
 					white_win = true
-				elif counter == WIN and board[y][x] == -1:
+				elif counter == win_con and board[y][x] == -1:
 					black_win = true
 		counter = 1
 		
 	#vertical
-	for x in range(BOARD_SIZE):
-		for y in range(1, BOARD_SIZE):
+	for x in range(board_size):
+		for y in range(1, board_size):
 			if board[y][x] != 0 and board[y][x] == board[y-1][x]:
 				counter += 1
-				if counter == WIN and board[y][x] == 1:
+				if counter == win_con and board[y][x] == 1:
 					white_win = true
-				elif counter == WIN and board[y][x] == -1:
+				elif counter == win_con and board[y][x] == -1:
 					black_win = true
 		counter = 1
 		
