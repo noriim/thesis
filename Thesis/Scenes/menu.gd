@@ -18,19 +18,18 @@ func _ready():
 	_update_back_button()
 	
 	settings_button.pressed.connect(_navigate_to.bind(settings))
-	
 
 func _show_panel(panel: Control):
 	panel.visible = true
-	
+
 func _update_back_button():
 	back_button.visible = nav_stack.size() > 0
-	
+
 func _navigate_to(panel: Control):
 	if current_panel:
 		nav_stack.append(current_panel)
 		current_panel.visible = false
-		
+	
 	current_panel = panel
 	_show_panel(current_panel)
 	_update_back_button()
@@ -48,11 +47,8 @@ func _on_back_pressed():
 func _on_quit_pressed():
 	get_tree().quit()
 
-
 func _on_single_pressed():
 	start(true)
-
-
 
 func _on_multi_pressed():
 	start(false)
@@ -72,7 +68,5 @@ func start(singleplayer: bool):
 	board.singleplayer = singleplayer
 
 	get_tree().current_scene.queue_free()
-
 	get_tree().root.add_child(main_scene)
-
 	get_tree().current_scene = main_scene

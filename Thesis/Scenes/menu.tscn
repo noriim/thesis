@@ -124,8 +124,8 @@ grow_horizontal = 2
 grow_vertical = 2
 theme_override_constants/separation = 50
 script = ExtResource("1_1rerr")
-board_size = NodePath("Board Size/Size_Picker")
-win_con = NodePath("Win Condition/Win_Picker")
+board_size = NodePath("BoardSize/SizePicker")
+win_con = NodePath("WinCondition/WinPicker")
 
 [node name="Label" type="Label" parent="Settings"]
 layout_mode = 2
@@ -134,30 +134,30 @@ size_flags_vertical = 1
 theme_override_font_sizes/font_size = 40
 text = "Settings"
 
-[node name="Board Size" type="HBoxContainer" parent="Settings"]
+[node name="BoardSize" type="HBoxContainer" parent="Settings"]
 layout_mode = 2
 size_flags_horizontal = 8
 theme_override_constants/separation = 25
 
-[node name="Label" type="Label" parent="Settings/Board Size"]
+[node name="Label" type="Label" parent="Settings/BoardSize"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 32
 text = "Board Size"
 
-[node name="Size_Picker" type="OptionButton" parent="Settings/Board Size"]
+[node name="SizePicker" type="OptionButton" parent="Settings/BoardSize"]
 layout_mode = 2
 
-[node name="Win Condition" type="HBoxContainer" parent="Settings"]
+[node name="WinCondition" type="HBoxContainer" parent="Settings"]
 layout_mode = 2
 size_flags_horizontal = 8
 theme_override_constants/separation = 25
 
-[node name="Label" type="Label" parent="Settings/Win Condition"]
+[node name="Label" type="Label" parent="Settings/WinCondition"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 32
 text = "Win Condition"
 
-[node name="Win_Picker" type="OptionButton" parent="Settings/Win Condition"]
+[node name="WinPicker" type="OptionButton" parent="Settings/WinCondition"]
 layout_mode = 2
 
 [node name="Back" type="Button" parent="."]

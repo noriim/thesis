@@ -12,3 +12,23 @@ script = ExtResource("2_r7lbl")
 [node name="Turn" type="Sprite2D" parent="."]
 modulate = Color(1, 1, 1, 0.666667)
 z_index = -10
+
+[node name="EndText" type="Label" parent="."]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -46.0
+offset_top = -24.5
+offset_right = 46.0
+offset_bottom = 24.5
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 4
+theme_override_colors/font_color = Color(0.317647, 0.819608, 0.713726, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
+theme_override_colors/font_outline_color = Color(1, 1, 1, 0)
+text = "GAME OVER
+Black won!"
+horizontal_alignment = 1

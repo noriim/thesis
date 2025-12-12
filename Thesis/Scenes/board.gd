@@ -16,6 +16,8 @@ const PIECE_MOVE = preload("res://Assets/Piece_move.png")
 @onready var pieces = $Pieces
 @onready var dots = $Dots
 @onready var turn = $Turn
+@onready var cam = $"../Camera2D"
+@onready var text = $EndText
 
 #Variables
 var board_size : int
@@ -40,93 +42,87 @@ func set_turn(turn):
 		side = turn
 		
 		if !side:
-			$"../Camera2D".global_rotation_degrees = 180
+			cam.global_rotation_degrees = 180
 
 func _ready():
 	max_width = board_size - 1
-	if board_size == 4:
-		texture = load("res://Assets/Board4.png")
-		position = Vector2(36, -36)
-		$"../Camera2D".zoom = Vector2(7, 7)
-		$"../Camera2D".offset = Vector2(-36, 36)
-		$Turn.scale = Vector2(0.54, 0.54)
-	elif board_size == 5:
-		texture = load("res://Assets/Board5.png")
-		position = Vector2(45, -45)
-		$"../Camera2D".zoom = Vector2(5.8, 5.8)
-		$"../Camera2D".offset = Vector2(-27, 27)
-		$Turn.scale = Vector2(0.655, 0.655)
-	elif board_size == 6:
-		texture = load("res://Assets/Board6.png")
-		position = Vector2(54, -54)
-		$"../Camera2D".zoom = Vector2(5, 5)
-		$"../Camera2D".offset = Vector2(-18, 18)
-		$Turn.scale = Vector2(0.77, 0.77)
-	elif board_size == 7:
-		texture = load("res://Assets/Board7.png")
-		position = Vector2(63, -63)
-		$"../Camera2D".zoom = Vector2(4.3, 4.3)
-		$"../Camera2D".offset = Vector2(-9, 9)
-		$Turn.scale = Vector2(0.885, 0.885)
-	elif board_size == 8:
-		texture = load("res://Assets/Board8.png")
+	text.visible = false
+	
+	match board_size:
+		4:
+			texture = load("res://Assets/Board4.png")
+			position = Vector2(36, -36)
+			cam.zoom = Vector2(7, 7)
+			cam.offset = Vector2(-36, 36)
+			turn.scale = Vector2(0.54, 0.54)
+			text.position = Vector2(-24, -16)
+			text.scale = Vector2(0.54, 0.54)
+			
+		5:
+			texture = load("res://Assets/Board5.png")
+			position = Vector2(45, -45)
+			cam.zoom = Vector2(5.8, 5.8)
+			cam.offset = Vector2(-27, 27)
+			turn.scale = Vector2(0.655, 0.655)
+			text.position = Vector2(-32, -16)
+			text.scale = Vector2(0.655, 0.655)
+		6:
+			texture = load("res://Assets/Board6.png")
+			position = Vector2(54, -54)
+			cam.zoom = Vector2(5, 5)
+			cam.offset = Vector2(-18, 18)
+			turn.scale = Vector2(0.77, 0.77)
+			text.position = Vector2(-36, -16)
+			text.scale = Vector2(0.77, 0.77)
+		7:
+			texture = load("res://Assets/Board7.png")
+			position = Vector2(63, -63)
+			cam.zoom = Vector2(4.3, 4.3)
+			cam.offset = Vector2(-9, 9)
+			turn.scale = Vector2(0.885, 0.885)
+			text.position = Vector2(-42, -18)
+			text.scale = Vector2(0.885, 0.885)
+		8:
+			texture = load("res://Assets/Board8.png")
+			text.position = Vector2(-46, -22)
+		_:
+			push_warning("Unsupported board size: %s" % board_size)
 
-	#board.append([1, 1, 1, 1])
-	#board.append([0, 0, 0, 0])
-	#board.append([0, 0, 0, 0])
-	#board.append([-1, -1, -1, -1])
-	#display_board()
 	for i in range(board_size):
 		board.append([])
 		board[i].resize(board_size)
 		board[i].fill(0)
 	is_game_over = false
 	display_board()
+
 func _input(event):
 	if singleplayer or side != null && side == black:
-		if event is InputEventMouseButton && event.pressed && !is_timeout && !is_game_over:
-			if event.button_index == MOUSE_BUTTON_LEFT:
-				if is_mouse_out(): return
-				if !has_moved:
-					var var1 = snapped(get_global_mouse_position().x, 0) / CELL_WIDTH
-					var var2 = abs(snapped(get_global_mouse_position().y, 0)) / CELL_WIDTH
-					if !state && (black && board[var2][var1] == 1 || !black && board[var2][var1] == -1):
-						selected_piece = Vector2(var2, var1)
-						show_options()
-						state = true
-					elif state:
-						if moves.has(Vector2(var2, var1)):
-							get_parent().send_move(selected_piece, Vector2(var2, var1), false)
-							set_move(selected_piece, Vector2(var2, var1), false)
-							
+		if event is InputEventMouseButton && event.pressed && !is_timeout && !is_game_over && !is_mouse_out():
+			if event.button_index == MOUSE_BUTTON_LEFT && !has_moved:
+				var var1 = snapped(get_global_mouse_position().x, 0) / CELL_WIDTH
+				var var2 = abs(snapped(get_global_mouse_position().y, 0)) / CELL_WIDTH
+				if !state && (black && board[var2][var1] == 1 || !black && board[var2][var1] == -1):
+					selected_piece = Vector2(var2, var1)
+					show_options()
+					state = true
+				elif state:
+					if moves.has(Vector2(var2, var1)):
+						if !singleplayer: get_parent().send_move(selected_piece, Vector2(var2, var1), false)
+						set_move(selected_piece, Vector2(var2, var1), false)
 						delete_dots()
 						state = false
 			elif event.button_index == MOUSE_BUTTON_RIGHT:
-				if is_mouse_out(): return
 				var var1 = snapped(get_global_mouse_position().x, 0) / CELL_WIDTH
 				var var2 = abs(snapped(get_global_mouse_position().y, 0)) / CELL_WIDTH
 				if !state && board[var2][var1] == 0:
-					get_parent().send_move(Vector2(), Vector2(var2, var1), true)
+					if !singleplayer: get_parent().send_move(Vector2(), Vector2(var2, var1), true)
 					set_move(Vector2(), Vector2(var2, var1), true)
-					
-					if is_board_full():
-						for i in 5:
-							await get_tree().create_timer(1.0).timeout
-							print(i)
-							if is_game_over:
-								return
-							spin_board()
-						if !is_game_over:
-							print("no winner :(")
-							is_game_over = true
 
 func is_board_full():
 	return placed_pieces == board_size * board_size
 
 func is_mouse_out():
-	if get_global_mouse_position().x < 0 || get_global_mouse_position().x > (board_size * CELL_WIDTH) || get_global_mouse_position().y > 0 || get_global_mouse_position().y < (-1 * board_size * CELL_WIDTH):
-		return true
-	return false
+	return get_global_mouse_position().x < 0 || get_global_mouse_position().x > (board_size * CELL_WIDTH) || get_global_mouse_position().y > 0 || get_global_mouse_position().y < (-1 * board_size * CELL_WIDTH)
 	
 func display_board():
 	for child in pieces.get_children():
@@ -177,7 +173,18 @@ func set_move(start_pos : Vector2, end_pos : Vector2, create : bool):
 		await get_tree().create_timer(1.0).timeout
 		is_timeout = false
 		spin_board()
-	elif !create:
+		if is_board_full():
+			for i in 5:
+				await get_tree().create_timer(1.0).timeout
+				if is_game_over:
+					return
+				spin_board()
+			if !is_game_over:
+				text.text = "GAME OVER\n It's a tie!"
+				text.visible = true
+				print("no winner :(")
+				is_game_over = true
+	else:
 		board[end_pos.x][end_pos.y] = board[start_pos.x][start_pos.y]
 		board[start_pos.x][start_pos.y] = 0
 		has_moved = true
@@ -195,12 +202,10 @@ func get_moves():
 	return _moves
 
 func is_valid_position(pos : Vector2):
-	if pos.x >= 0 && pos.x < board_size && pos.y >= 0 && pos.y < board_size: return true
-	return false
+	return pos.x >= 0 && pos.x < board_size && pos.y >= 0 && pos.y < board_size
 	
 func is_empty(pos : Vector2):
-	if board[pos.x][pos.y] == 0: return true
-	return false
+	return board[pos.x][pos.y] == 0
 	
 func spin_board():
 	#var breakpnt = board_size / 2 - 0.5
@@ -284,12 +289,18 @@ func check_win():
 
 	if white_win and black_win:
 		is_game_over = true
+		text.text = "GAME OVER\n It's a tie!"
+		text.visible = true
 		print("welp, thats a tie")
 	elif white_win:
 		is_game_over = true
+		text.text = "GAME OVER\n White won!"
+		text.visible = true
 		print("yay, white won")
 	elif black_win:
 		is_game_over = true
+		text.text = "GAME OVER\n Black won!"
+		text.visible = true
 		print("yay, black won")
 	print("FULL:" + str(is_board_full()))
 	print("GAME OVER:" + str(is_game_over))
