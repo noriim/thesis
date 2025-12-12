@@ -37,12 +37,12 @@ var is_game_over = false
 #Multiplayer
 var side #white is true, black is false
 
-func set_turn(turn):
+func set_turn(sideturn):
 	if !singleplayer:
-		side = turn
+		side = sideturn
 		
-		if !side:
-			cam.global_rotation_degrees = 180
+		if side:
+			turn.global_rotation_degrees = 180
 
 func _ready():
 	max_width = board_size - 1
@@ -97,21 +97,25 @@ func _ready():
 
 func _input(event):
 	if singleplayer or side != null && side == black:
-		if event is InputEventMouseButton && event.pressed && !is_timeout && !is_game_over && !is_mouse_out():
-			if event.button_index == MOUSE_BUTTON_LEFT && !has_moved:
-				var var1 = snapped(get_global_mouse_position().x, 0) / CELL_WIDTH
-				var var2 = abs(snapped(get_global_mouse_position().y, 0)) / CELL_WIDTH
-				if !state && (black && board[var2][var1] == 1 || !black && board[var2][var1] == -1):
-					selected_piece = Vector2(var2, var1)
-					show_options()
-					state = true
-				elif state:
-					if moves.has(Vector2(var2, var1)):
-						if !singleplayer: get_parent().send_move(selected_piece, Vector2(var2, var1), false)
-						set_move(selected_piece, Vector2(var2, var1), false)
+		if event is InputEventMouseButton && event.pressed && !is_timeout && !is_game_over:
+			if event.button_index == MOUSE_BUTTON_LEFT:
+				if is_mouse_out(): return
+				if !has_moved:
+					var var1 = snapped(get_global_mouse_position().x, 0) / CELL_WIDTH
+					var var2 = abs(snapped(get_global_mouse_position().y, 0)) / CELL_WIDTH
+					if !state && (black && board[var2][var1] == 1 || !black && board[var2][var1] == -1):
+						selected_piece = Vector2(var2, var1)
+						show_options()
+						state = true
+					elif state:
+						if moves.has(Vector2(var2, var1)):
+							if !singleplayer: get_parent().send_move(selected_piece, Vector2(var2, var1), false)
+							set_move(selected_piece, Vector2(var2, var1), false)
+
 						delete_dots()
 						state = false
 			elif event.button_index == MOUSE_BUTTON_RIGHT:
+				if is_mouse_out(): return
 				var var1 = snapped(get_global_mouse_position().x, 0) / CELL_WIDTH
 				var var2 = abs(snapped(get_global_mouse_position().y, 0)) / CELL_WIDTH
 				if !state && board[var2][var1] == 0:
